@@ -1,0 +1,12 @@
+{
+  "name": "boat-suit-web",
+  "version": "1.0.0",
+  "description": "boat-suit-web",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies":{
+    "koa": "^2.8.1"
+  }
+}
