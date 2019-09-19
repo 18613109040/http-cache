@@ -51,7 +51,50 @@ app.use(async (ctx, next) => {
       console.log('oldTime', oldTime);
       if(oldTime < mtimeMs) {
         ctx.set('Content-Type', 'image/png');
-        ctx.set('Cache-Control', 'no-cache');
+        ctx.set('Cache-Control', 'no-store');  
+        ctx.set('Last-Modified',new Date(mtimeMs).toGMTString());
+        ctx.body= img
+      }else {
+        ctx.status = 304;
+        ctx.body =''
+      } 
+    case '/img/modified': // 协商缓存 可以修改 test.png 来观察
+      let stats = fs.statSync('./test.png'); 
+      let mtimeMs = stats.mtimeMs; // 获取文件最后一次修改时间
+      let If_Modified_Since = ctx.headers['if-modified-since'];
+      let oldTime = 0;
+      if(If_Modified_Since) {
+          const If_Modified_Since_Date = new Date(If_Modified_Since);
+          oldTime = If_Modified_Since_Date.getTime();
+      }
+      
+      mtimeMs = Math.floor(mtimeMs / 1000) * 1000;    // 这种方式的精度是秒, 所以毫秒的部分忽略掉
+      console.log('mtimeMs', mtimeMs);
+      console.log('oldTime', oldTime);
+      if(oldTime < mtimeMs) {
+        ctx.set('Content-Type', 'image/png'); 
+        ctx.set('Last-Modified',new Date(mtimeMs).toGMTString());
+        ctx.body= img
+      }else {
+        ctx.status = 304;
+        ctx.body =''
+      } 
+    case '/img/modified-and-no-store': // 协商缓存和强制缓存同时存在，强制缓存优先
+      let stats = fs.statSync('./test.png');
+      let mtimeMs = stats.mtimeMs; // 获取文件最后一次修改时间
+      let If_Modified_Since = ctx.headers['if-modified-since'];
+      let oldTime = 0;
+      if(If_Modified_Since) {
+          const If_Modified_Since_Date = new Date(If_Modified_Since);
+          oldTime = If_Modified_Since_Date.getTime();
+      }
+      
+      mtimeMs = Math.floor(mtimeMs / 1000) * 1000;    // 这种方式的精度是秒, 所以毫秒的部分忽略掉
+      console.log('mtimeMs', mtimeMs);
+      console.log('oldTime', oldTime);
+      if(oldTime < mtimeMs) {
+        ctx.set('Content-Type', 'image/png');
+        ctx.set('Cache-Control', 'no-store');  
         ctx.set('Last-Modified',new Date(mtimeMs).toGMTString());
         ctx.body= img
       }else {
